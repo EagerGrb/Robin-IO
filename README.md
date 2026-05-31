@@ -1,15 +1,32 @@
-# TypeScript Import/Export Framework / TypeScript 导入导出框架
+# TypeScript Import/Export Framework
 
-This repository is the MVP monorepo described in `typescript-import-export-implementation-guide.md`.
+A cross-runtime TypeScript streaming import/export framework for production-style data workflows.
 
-本仓库是 `typescript-import-export-implementation-guide.md` 中描述的 MVP monorepo 落地版本�?
-It provides a cross-runtime streaming import/export kernel built around `AsyncIterable`, with package-level adapters for Node, browser, memory sources/sinks, plugin testing, and optional format codecs such as CSV and JSONL.
+This project is not just a CSV parser. It provides a full import/export runtime built around `AsyncIterable`, with adapters for Node and browser environments, codecs such as CSV and JSONL, reusable transforms, validation, progress reporting, structured errors, batching, cancellation, and package-level extension points.
 
-它提供了一个基�?`AsyncIterable` 的跨运行时流式导入导出内核，并配�?Node、浏览器、内�?source/sink、插件测试，以及 CSV、JSONL 等可选格�?codec�?
-The core is format-agnostic and business-agnostic. CSV and JSONL are official codec plugins, not framework assumptions.
+## Why This Exists
 
-核心保持格式无关和业务无关。CSV �?JSONL 是官�?codec 插件，不是框架内核的前提假设�?
-## Quick Start / 快速开�?
+Production imports and exports usually involve more than parsing:
+
+- reading files or browser `Blob` objects;
+- decoding records from CSV, JSONL, or another format;
+- validating and transforming rows;
+- tracking progress;
+- collecting errors and dead letters;
+- batching writes;
+- exporting to files, browser downloads, streams, or memory;
+- cancelling long-running work safely.
+
+This framework models those steps as a single composable pipeline:
+
+```text
+Source -> Decoder? -> Transform* -> Encoder? -> Batch -> Sink
+```
+
+The core package is format-agnostic and platform-agnostic. Node, browser, CSV, JSONL, field mapping, and validation support live in separate packages.
+
+## Quick Start
+
 ```ts
 import { pipeline, map, validate } from "@robbin-io/core"
 import { csvDecoder } from "@robbin-io/codec-csv"
@@ -24,27 +41,27 @@ await pipeline()
   .through(jsonlEncoder())
   .batch({ size: 1000 })
   .to(fsFileSink("users.jsonl"))
-  .run()
+  .run({ runtime: "node" })
 ```
 
 The example reads `users.csv`, decodes CSV rows, validates and transforms each row, encodes records as JSONL, then writes `users.jsonl`.
 
-上面的示例会读取 `users.csv`，解�?CSV 行，校验并转换每条记录，再编码成 JSONL，最后写�?`users.jsonl`�?
-## Packages / 包说�?
-- `@robbin-io/core`: pipeline builder, runtime executor, core types, metrics, progress/error behavior, map/filter/validate transforms.
-  `pipeline` 构建器、运行时执行器、核心类型、指标、进�?错误行为，以�?`map/filter/validate` transform�?- `@robbin-io/node`: Node `fs` source/sink and stream adapters.
-  Node `fs` 文件 source/sink、gzip file source/sink �?stream 适配器�?- `@robbin-io/browser`: `Blob`/`File` source, download sink, WritableStream sink, and Web Worker transform.
-  浏览�?`Blob`/`File` source、下�?sink、WritableStream sink �?Web Worker transform�?- `@robbin-io/source-file`: runtime-friendly file source entry point plus direct Node/browser exports.
-  运行时友好的文件 source 入口，同时导�?Node/浏览器的直接实现�?- `@robbin-io/sink-file`: runtime-friendly file sink entry point plus direct Node/browser exports.
-  运行时友好的文件 sink 入口，同时导�?Node/浏览器的直接实现�?- `@robbin-io/codec-csv`: CSV decoder/encoder, wrapping `csv-parse` in Node and `papaparse` in browser-like environments.
-  CSV decoder/encoder；Node 环境封装 `csv-parse`，浏览器类环境封�?`papaparse`�?- `@robbin-io/codec-jsonl`: JSONL decoder/encoder.
-  JSONL decoder/encoder�?- `@robbin-io/transform-fields`: field mapping helper for renaming, projection, defaults, and nested paths.
-  字段映射 helper，用于重命名、投影、默认值和嵌套路径处理�?- `@robbin-io/validation-zod`: optional Zod validation transform.
-  可选的 Zod 校验 transform�?- `@robbin-io/source-memory`: memory source.
-  内存 source�?- `@robbin-io/sink-memory`: memory sink and dead-letter sink.
-  内存 sink �?dead-letter sink�?- `@robbin-io/plugin-testing`: contract helpers for sources, sinks, and transforms.
-  source、sink、transform 的契约测试辅助工具�?
-## Commands / 命令
+## Packages
+
+- `@robbin-io/core`: pipeline builder, runtime executor, core contracts, metrics, progress/error behaviors, and `map`/`filter`/`validate` transforms.
+- `@robbin-io/node`: Node `fs` source/sink, gzip file source/sink, atomic writes, and Node stream adapters.
+- `@robbin-io/browser`: `Blob`/`File` source, download sink, `WritableStream` sink, and Web Worker transform adapter.
+- `@robbin-io/source-file`: runtime-friendly file source entry point plus direct Node/browser exports.
+- `@robbin-io/sink-file`: runtime-friendly file sink entry point plus direct Node/browser exports.
+- `@robbin-io/codec-csv`: CSV decoder/encoder using `csv-parse` in Node and PapaParse in browser-like environments.
+- `@robbin-io/codec-jsonl`: JSONL decoder/encoder.
+- `@robbin-io/transform-fields`: field mapping helper for renaming, projection, defaults, required fields, and nested paths.
+- `@robbin-io/validation-zod`: optional Zod validation transform.
+- `@robbin-io/source-memory`: memory source.
+- `@robbin-io/sink-memory`: memory sink and dead-letter sink.
+- `@robbin-io/plugin-testing`: contract helpers for sources, sinks, and transforms.
+
+## Commands
 
 ```bash
 npm install
@@ -52,7 +69,9 @@ npm test
 npm run verify
 npm run typecheck
 npm run typecheck:api
+npm run build
 npm run bench
+npm run bench:stress
 npm run package:check
 npm run package:tarballs:check
 npm run changeset:check-config
@@ -65,79 +84,70 @@ npm run smoke:packed-consumer
 npm run smoke:browser-matrix
 npm run smoke:browser-writable-stream
 npm run release:publish:dry-run
-npm run build
 ```
 
-Use `npm test` for unit and end-to-end tests, `npm run verify` for the full local quality gate, `npm run bench` for local performance baselines, `npm run package:check` for package export validation, `npm run package:tarballs:check` for npm tarball dry-run content validation, `npm run changeset:check-config` for local Changesets config checks, `npm run changeset:status` for release-note status in a git branch, `npm run example:node` for the Node CSV-to-JSONL example, `npm run example:browser` for the Vite browser preview, `npm run smoke:node-dist` to verify built ESM package entries, `npm run smoke:packed-consumer` to verify clean install from packed tarballs, `npm run smoke:browser-matrix` for Playwright Chromium/Firefox/WebKit smoke, `npm run smoke:browser-csv` for real browser CSV streaming smoke, `npm run smoke:browser-csv-large` for a larger real browser CSV boundary smoke, `npm run smoke:browser-csv-worker` for real browser CSV plus Worker transform smoke, `npm run smoke:browser-writable-stream` for real browser WritableStream export smoke, `npm run smoke:browser-worker` for real browser Worker smoke, `npm run release:publish:dry-run` for publish simulation, `npm run typecheck` for TypeScript project checks, `npm run typecheck:api` for public API type inference and root/internal boundary regression checks, and `npm run build` for package output.
+Use `npm run verify` for the full local quality gate. It covers formatting, tests, type checks, package build, package export checks, tarball checks, release-doc checks, Node ESM smoke, packed-consumer smoke, browser build, and browser smoke tests.
 
-使用 `npm test` 运行单元测试和端到端测试，使�?`npm run verify` 运行完整本地质量门，使用 `npm run bench` 运行本地性能基准，使�?`npm run package:check` 校验 package 导出，使�?`npm run package:tarballs:check` 校验 npm tarball dry-run 文件清单，使�?`npm run changeset:check-config` 做本�?Changesets 配置检查，使用 `npm run changeset:status` �?git 分支中检查发布说明状态，使用 `npm run example:node` 运行 Node CSV �?JSONL 示例，使�?`npm run example:browser` 运行 Vite 浏览器预览示例，使用 `npm run smoke:node-dist` 验证构建后的 ESM package 入口，使�?`npm run smoke:packed-consumer` 验证 clean install packed tarball 消费路径，使�?`npm run smoke:browser-csv` 运行真实浏览�?CSV streaming smoke，使�?`npm run smoke:browser-csv-large` 运行更大的真实浏览器 CSV 边界 smoke，使�?`npm run smoke:browser-csv-worker` 运行真实浏览�?CSV �?Worker transform 组合 smoke，使�?`npm run smoke:browser-writable-stream` 运行真实浏览�?WritableStream 导出 smoke，使�?`npm run smoke:browser-worker` 运行真实浏览�?Worker smoke，使�?`npm run typecheck` 运行 TypeScript 项目检查，使用 `npm run typecheck:api` 运行公开 API 类型推导�?root/internal 边界回归检查，使用 `npm run build` 生成�?package 的构建产物�?
-## Workflows / 常用工作�?
-For day-to-day development, run tests and type checks before building:
+## Examples
 
-日常开发时，建议先运行测试和类型检查，再构建：
+- `examples/node-csv-to-jsonl`: Node CSV import, row transform, JSONL export.
+- `examples/browser-csv-preview`: browser CSV upload preview with progress/error reporting.
 
-```bash
-npm test
-npm run typecheck
-npm run build
-```
-
-To verify that the built package entries work in plain Node ESM, run:
-
-如果要验证构建后�?package 入口能被原生 Node ESM 正常导入，运行：
-
-```bash
-npm run smoke:node-dist
-```
-
-To run the current Node example, edit `examples/node-csv-to-jsonl/input.csv`, then run:
-
-如果要运行当�?Node 示例，先编辑 `examples/node-csv-to-jsonl/input.csv`，然后运行：
+Run the Node example:
 
 ```bash
 npm run example:node
 ```
 
-The generated file is written to `examples/node-csv-to-jsonl/output.jsonl`.
+Run the browser example:
 
-生成结果会写�?`examples/node-csv-to-jsonl/output.jsonl`�?
-To run the browser preview, start the Vite dev server:
-
-如果要运行浏览器预览示例，启�?Vite dev server�?
 ```bash
 npm run example:browser
 ```
 
-To verify the browser example without keeping a server running:
+Build the browser example without keeping a dev server running:
 
-如果只想验证浏览器示例能构建，不保持服务运行�?
 ```bash
 npm run example:browser:build
 ```
 
-## Examples / 示例
+## Performance Snapshot
 
-- `examples/node-csv-to-jsonl`: Node CSV import, row transform, JSONL export.
-  Node CSV 导入、行转换、JSONL 导出�?- `examples/browser-csv-preview`: browser CSV upload preview with progress/error reporting.
-  浏览�?CSV 上传预览，并显示进度/错误报告�?
-## API Reference / API 参�?
-- [Getting Started / 使用指南](docs/getting-started.md)
+The large import/export stress test uses a realistic file workflow:
+
+```text
+fsFileSource -> csvDecoder -> map -> jsonlEncoder -> fsFileSink
+fsFileSource -> jsonlDecoder -> map -> csvEncoder -> fsFileSink
+```
+
+Recent 1,000,000-row stress results on Node 24:
+
+| Scenario                  |         Throughput |      Peak RSS |
+| ------------------------- | -----------------: | ------------: |
+| CSV -> transform -> JSONL | about 66k rows/sec | about 277 MiB |
+| JSONL -> transform -> CSV | about 82k rows/sec | about 261 MiB |
+
+Run the stress test locally:
+
+```bash
+npm run bench:stress
+```
+
+See `benchmarks/large-import-export-stress-report-2026-05-18.md` and `docs/performance-large-import-export-plan.md` for details and caveats.
+
+## API Reference
+
+- [Getting Started](docs/getting-started.md)
 - [Core](docs/reference/core.md)
 - [Node](docs/reference/node.md)
 - [Browser](docs/reference/browser.md)
 - [Codecs](docs/reference/codecs.md)
 - [Transforms and Validation](docs/reference/transforms.md)
+- [Runtime Architecture](docs/architecture/runtime.md)
 - [Release Checklist](docs/release/checklist.md)
 
-## MVP Boundaries / MVP 边界
+## Release Status
 
-The first version intentionally keeps the runtime linear:
+The project is pre-1.0. Root package exports are the intended public API surface. Subpaths named `internal` are for framework-owned packages and advanced experiments, and they are not covered by the same compatibility promise.
 
-第一版会有意保持线性运行时�?
-```text
-source -> through* -> batch -> sink
-```
-
-The core owns API shape, execution, cancellation, metrics, and behavior hooks. Platform and format concerns stay in adapter packages.
-
-核心包负�?API 形态、执行、取消、指标和行为钩子。平台相关能力和格式相关能力留在各自的适配 package 中�?
+See `docs/release/deployment-and-growth-plan.md` for the deployment, npm publishing, and growth plan.

@@ -1,8 +1,8 @@
-# Node API / Node API 参�?
-`@robbin-io/node` provides Node-specific sources and sinks. It is the right place for file system, gzip, and Node stream adapters.
+# Node API
 
-`@robbin-io/node` 提供 Node 专属 source �?sink。文件系统、gzip、Node stream 适配都属于这一层�?
-## File Source / 文件 Source
+`@robbin-io/node` provides Node-specific sources and sinks. It is the package for filesystem, gzip, and Node stream adapters.
+
+## File Source
 
 ```ts
 import { fsFileSource } from "@robbin-io/node"
@@ -10,7 +10,9 @@ import { fsFileSource } from "@robbin-io/node"
 pipeline().from(fsFileSource("input.csv"))
 ```
 
-## File Sink / 文件 Sink
+`fsFileSource(path, { chunkSize })` reads a file as `Uint8Array` chunks and emits byte metadata on record events.
+
+## File Sink
 
 ```ts
 import { fsFileSink } from "@robbin-io/node"
@@ -18,14 +20,15 @@ import { fsFileSink } from "@robbin-io/node"
 pipeline().to(fsFileSink("output.jsonl", { createParentDirectories: true }))
 ```
 
-Use `atomic: true` to write to a temporary file and rename only after success.
+Use `atomic: true` to write to a temporary file and rename only after a successful pipeline:
 
-使用 `atomic: true` 时，会先写临时文件，只在成功�?rename 到目标路径�?
 ```ts
 fsFileSink("output.jsonl", { atomic: true, createParentDirectories: true })
 ```
 
-## Gzip / Gzip 压缩
+The file sink coalesces each batch into a single write where possible. This keeps the public sink contract unchanged while reducing write overhead for large encoded exports.
+
+## Gzip
 
 ```ts
 import { gzipFileSource, gzipFileSink } from "@robbin-io/node"
@@ -33,3 +36,14 @@ import { gzipFileSource, gzipFileSink } from "@robbin-io/node"
 pipeline().from(gzipFileSource("input.jsonl.gz"))
 pipeline().to(gzipFileSink("output.jsonl.gz", { atomic: true }))
 ```
+
+## Stream Adapters
+
+```ts
+import { readableSource, writableSink } from "@robbin-io/node"
+
+pipeline().from(readableSource(readable))
+pipeline().to(writableSink(writable))
+```
+
+The stream adapters participate in the same cancellation, byte metadata, and close semantics as file sources and sinks.

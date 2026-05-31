@@ -1,8 +1,6 @@
-# Release Candidate Record / 发布候选记录
+# Release Candidate Record 2026-05-14
 
 This is a dry-run release candidate rehearsal record. No npm publish was attempted.
-
-这是一次 dry-run release candidate 演练记录。未执行 npm publish。
 
 ## Candidate
 
@@ -36,7 +34,7 @@ This is a dry-run release candidate rehearsal record. No npm publish was attempt
 
 ## Benchmark Evidence
 
-Compare `npm run bench` with `docs/architecture/performance-baseline.md`. This rehearsal records current values; final release approval should compare against the active baseline in the release PR.
+This rehearsal records current values. Final release approval should compare against the active baseline in the release PR.
 
 | Benchmark group                  | Command         | Result     | Baseline comparison | Decision |
 | -------------------------------- | --------------- | ---------- | ------------------- | -------- |

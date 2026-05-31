@@ -1,27 +1,24 @@
-# CI Matrix / CI 验证矩阵
+# CI Matrix
 
 This document defines the minimum validation matrix for beta releases. It separates fast PR gates from release-candidate gates so performance and browser checks stay useful without making everyday development brittle.
 
-本文档定�?beta release 的最低验证矩阵。它把快�?PR 门槛�?release candidate 门槛分开，避免性能和浏览器检查拖垮日常开发�?
-## Required PR Gate / 必需 PR 门槛
+## Required PR Gate
 
 Run on every change that touches packages, examples, scripts, or docs used by release:
 
-凡修�?packages、examples、scripts 或发布相�?docs，均需运行�?
 ```bash
 npm run verify
 ```
 
 `verify` covers:
 
-`verify` 覆盖�?
 - formatting;
-- Vitest unit/integration tests;
+- Vitest unit and integration tests;
 - TypeScript project references;
 - package build;
 - package metadata and exports;
-- public API surface check through `package:check`;
-- changeset config check;
+- public API surface checks through `package:check`;
+- changeset config checks;
 - Node dist smoke;
 - clean install packed tarball consumer smoke;
 - browser CSV preview build;
@@ -33,12 +30,11 @@ CI also runs a separate browser matrix job:
 npm run smoke:browser-matrix
 ```
 
-The matrix installs Playwright browsers and runs the browser smoke fixtures on Chromium, Firefox, and WebKit.
+The matrix installs Playwright browsers and runs browser smoke fixtures on Chromium, Firefox, and WebKit.
 
-## Release Candidate Gate / 发布候选门�?
+## Release Candidate Gate
+
 Run before creating or approving a beta release branch:
-
-创建或批�?beta release 分支前运行：
 
 ```bash
 npm run verify
@@ -51,22 +47,18 @@ npm run changeset:status
 npm run release:publish:dry-run
 ```
 
-Record the results in `docs/release/candidate-record.md` or the release PR using that template.
+Record the results in `docs/release/candidate-record.md` or in the release PR using that template.
 
-使用 `docs/release/candidate-record.md` 模板�?release PR 中记录结果�?
 Interpretation rules:
 
-判读规则�?
 - `bench` should be compared with `docs/architecture/performance-baseline.md`.
 - Any sustained regression above 10% in default map, progress behavior, CSV decode, or 100k memory pipeline needs a release note or fix.
 - `bench:browser-worker` is directional; transfer should remain faster than clone for the default browser worker case.
 - Browser checks require Chrome or Edge. Set `CHROME_PATH` when auto-discovery is not available.
 
-## Environment Matrix / 环境矩阵
+## Environment Matrix
 
 Minimum local release environment:
-
-最低本地发布环境：
 
 | Area    | Required       | Notes                                                                       |
 | ------- | -------------- | --------------------------------------------------------------------------- |
@@ -77,7 +69,6 @@ Minimum local release environment:
 
 Target CI expansion before public 1.0:
 
-公开 1.0 前建议扩展的 CI�?
 | Area            | Target                                                  |
 | --------------- | ------------------------------------------------------- |
 | Node            | Latest 24.x and next active LTS                         |
@@ -85,10 +76,10 @@ Target CI expansion before public 1.0:
 | Browser         | Chromium, Firefox, and WebKit via Playwright            |
 | Package manager | npm only unless pnpm/yarn support is explicitly adopted |
 
-## Browser Worker Checks / Browser Worker 检�?
+## Browser Worker Checks
+
 `smoke:browser-worker` is correctness-oriented and is part of `verify`.
 
-`smoke:browser-worker` 面向正确性，已纳�?`verify`�?
 It checks:
 
 - Vite build;
@@ -99,8 +90,7 @@ It checks:
 
 `bench:browser-worker` is performance-oriented and should not be part of ordinary PR gates. It records clone vs transfer timing in a real headless Chrome session.
 
-`bench:browser-worker` 面向性能，不应放入普�?PR 门槛。它记录真实 headless Chrome �?clone �?transfer 的耗时对比�?
-## Failure Handling / 失败处理
+## Failure Handling
 
 - Formatting, typecheck, tests, package checks, API surface checks, and smoke tests are blocking.
 - Benchmark regressions are blocking only when sustained and unexplained.
@@ -113,7 +103,7 @@ It checks:
 
 - `release-gate` runs `verify`, the Playwright browser matrix, benchmarks, Changesets status, and `release:publish:dry-run`.
 - `publish` runs only on `main` when the workflow input `publish` is true.
-- Real npm publish requires repository secret `NPM_TOKEN` and environment `npm`.
+- Real npm publish requires npm Trusted Publishing or repository secret `NPM_TOKEN`.
 - `scripts/publish-packages.mjs` publishes only `packages/*`, skips private examples, and publishes internal `@robbin-io/*` dependencies before dependents.
 
 The workflow is intentionally manual. Do not publish from a local machine unless the same release gate has passed on CI.
