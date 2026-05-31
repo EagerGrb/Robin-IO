@@ -1,0 +1,20 @@
+{
+  "name": "@robbin-io/example-browser-csv-preview",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1"
+  },
+  "dependencies": {
+    "@robbin-io/browser": "0.1.0",
+    "@robbin-io/codec-csv": "0.1.0",
+    "@robbin-io/core": "0.1.0",
+    "@robbin-io/sink-memory": "0.1.0"
+  },
+  "devDependencies": {
+    "vite": "^8.0.11"
+  }
+}

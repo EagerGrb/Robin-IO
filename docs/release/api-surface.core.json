@@ -1,0 +1,21 @@
+{
+  "package": "@robbin-io/core",
+  "stable": [
+    "CORE_RUNTIME_ERROR_CODES",
+    "InMemoryMetricsCollector",
+    "PipelineBuilder",
+    "PipelineTask",
+    "RuntimeError",
+    "cancellationBehavior",
+    "createDeadLetterRecord",
+    "deadLetterBehavior",
+    "errorReporterBehavior",
+    "filter",
+    "map",
+    "pipeline",
+    "progressBehavior",
+    "transform",
+    "validate"
+  ],
+  "experimental": []
+}

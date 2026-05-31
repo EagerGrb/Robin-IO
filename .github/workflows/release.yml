@@ -1,0 +1,85 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Publish packages to npm. Requires npm Trusted Publishing or NPM_TOKEN fallback and main branch."
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  release-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install
+        run: npm ci --ignore-scripts
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Verify
+        run: npm run verify
+
+      - name: Browser Matrix Smoke
+        run: npm run smoke:browser-matrix
+
+      - name: Bench
+        run: npm run bench
+
+      - name: Browser Worker Bench
+        run: npm run bench:browser-worker
+
+      - name: Changeset Status
+        run: npm run changeset:status
+
+      - name: Publish Dry Run
+        run: npm run release:publish:dry-run
+
+  publish:
+    needs: release-gate
+    if: ${{ github.ref == 'refs/heads/main' && inputs.publish }}
+    runs-on: ubuntu-latest
+    environment: npm
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+          cache: npm
+
+      - name: Install
+        run: npm ci --ignore-scripts
+
+      - name: Build
+        run: npm run build
+
+      - name: Package Checks
+        run: npm run package:check && npm run package:tarballs:check && npm run smoke:packed-consumer
+
+      - name: Publish Packages
+        run: npm run release:publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

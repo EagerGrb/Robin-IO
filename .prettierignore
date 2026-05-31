@@ -1,0 +1,9 @@
+node_modules/
+dist/
+packages/*/dist/
+examples/*/dist/
+coverage/
+.vitest/
+*.tsbuildinfo
+package-lock.json
+*.log

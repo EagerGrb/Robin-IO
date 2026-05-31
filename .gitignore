@@ -1,0 +1,13 @@
+node_modules/
+benchmarks/.stress-output/
+dist/
+packages/*/dist/
+packages/*/tsconfig.tsbuildinfo
+packages/*/src/**/*.js
+packages/*/src/**/*.js.map
+*.tsbuildinfo
+.vitest/
+.turbo/
+coverage/
+*.log
+examples/*/dist/

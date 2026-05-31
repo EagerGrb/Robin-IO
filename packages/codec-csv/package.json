@@ -1,0 +1,41 @@
+{
+  "name": "@robbin-io/codec-csv",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true});fs.rmSync('tsconfig.tsbuildinfo',{force:true})\""
+  },
+  "dependencies": {
+    "@robbin-io/core": "0.1.0"
+  },
+  "optionalDependencies": {
+    "csv-parse": "^6.2.1",
+    "papaparse": "^5.5.3"
+  },
+  "peerDependenciesMeta": {
+    "csv-parse": {
+      "optional": true
+    },
+    "papaparse": {
+      "optional": true
+    }
+  }
+}

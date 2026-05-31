@@ -1,0 +1,19 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@3.1.1/schema.json",
+  "changelog": "@changesets/cli/changelog",
+  "commit": false,
+  "fixed": [],
+  "linked": [],
+  "access": "public",
+  "baseBranch": "main",
+  "updateInternalDependencies": "patch",
+  "ignore": [
+    "@robbin-io/example-node-csv-to-jsonl",
+    "@robbin-io/example-browser-csv-preview",
+    "@robbin-io/example-browser-csv-smoke",
+    "@robbin-io/example-browser-csv-worker-smoke",
+    "@robbin-io/example-browser-worker-smoke",
+    "@robbin-io/example-browser-writable-stream-smoke",
+    "@robbin-io/example-browser-worker-bench"
+  ]
+}

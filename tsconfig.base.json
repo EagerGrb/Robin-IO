@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "paths": {
+      "@robbin-io/core": ["./packages/core/src/index.ts"],
+      "@robbin-io/core/internal": ["./packages/core/src/internal.ts"],
+      "@robbin-io/codec-jsonl": ["./packages/codec-jsonl/src/index.ts"],
+      "@robbin-io/source-memory": ["./packages/source-memory/src/index.ts"],
+      "@robbin-io/sink-memory": ["./packages/sink-memory/src/index.ts"],
+      "@robbin-io/node": ["./packages/node/src/index.ts"],
+      "@robbin-io/browser": ["./packages/browser/src/index.ts"],
+      "@robbin-io/source-file": ["./packages/source-file/src/index.ts"],
+      "@robbin-io/sink-file": ["./packages/sink-file/src/index.ts"],
+      "@robbin-io/codec-csv": ["./packages/codec-csv/src/index.ts"],
+      "@robbin-io/plugin-testing": ["./packages/plugin-testing/src/index.ts"],
+      "@robbin-io/transform-fields": ["./packages/transform-fields/src/index.ts"],
+      "@robbin-io/validation-zod": ["./packages/validation-zod/src/index.ts"]
+    }
+  }
+}

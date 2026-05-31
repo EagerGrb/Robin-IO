@@ -1,0 +1,66 @@
+{
+  "name": "@robbin-io/import-export-framework",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A cross-runtime TypeScript streaming import/export framework.",
+  "scripts": {
+    "bench": "npm run build && node benchmarks/run.mjs",
+    "bench:stress": "node benchmarks/large-import-export-stress.mjs",
+    "bench:browser-worker": "node scripts/bench-browser-worker.mjs",
+    "build": "node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc -b packages/core packages/codec-jsonl packages/source-memory packages/sink-memory packages/node packages/browser packages/source-file packages/sink-file packages/codec-csv packages/plugin-testing packages/transform-fields packages/validation-zod",
+    "changeset": "changeset",
+    "changeset:check-config": "node scripts/check-changeset-config.mjs",
+    "changeset:status": "changeset status",
+    "changeset:version": "changeset version",
+    "clean": "npm run clean -ws --if-present",
+    "example:browser": "npm run dev -w @robbin-io/example-browser-csv-preview",
+    "example:browser:build": "npm run build -w @robbin-io/example-browser-csv-preview",
+    "example:node": "node --experimental-strip-types examples/node-csv-to-jsonl/src/index.ts examples/node-csv-to-jsonl/input.csv examples/node-csv-to-jsonl/output.jsonl",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "api:check": "npm run build && node scripts/check-public-api-surface.mjs",
+    "package:check": "npm run build && node scripts/check-package-exports.mjs && node scripts/check-public-api-surface.mjs && node scripts/check-release-docs.mjs",
+    "package:tarballs:check": "npm run build && node scripts/check-package-tarballs.mjs",
+    "release:docs:check": "node scripts/check-release-docs.mjs",
+    "release:publish": "npm run build && node scripts/publish-packages.mjs",
+    "release:publish:dry-run": "npm run build && node scripts/publish-packages.mjs --dry-run",
+    "smoke:browser-csv": "node scripts/smoke-browser-csv.mjs",
+    "smoke:browser-csv-large": "node scripts/smoke-browser-csv-large.mjs",
+    "smoke:browser-csv-worker": "node scripts/smoke-browser-csv-worker.mjs",
+    "smoke:browser-matrix": "node scripts/smoke-browser-matrix.mjs",
+    "smoke:browser-writable-stream": "node scripts/smoke-browser-writable-stream.mjs",
+    "smoke:browser-worker": "node scripts/smoke-browser-worker.mjs",
+    "smoke:node-dist": "npm run build && node scripts/smoke-node-dist.mjs",
+    "smoke:packed-consumer": "npm run build && node scripts/smoke-packed-consumer.mjs",
+    "test": "vitest run --pool=threads --maxWorkers=1",
+    "typecheck:api": "tsc -p tsconfig.type-tests.json --pretty false --noEmit",
+    "typecheck": "node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc -b --pretty false packages/core packages/codec-jsonl packages/source-memory packages/sink-memory packages/node packages/browser packages/source-file packages/sink-file packages/codec-csv packages/plugin-testing packages/transform-fields packages/validation-zod",
+    "verify": "npm run format:check && npm test && npm run typecheck && npm run typecheck:api && npm run build && npm run package:check && npm run package:tarballs:check && npm run changeset:check-config && npm run smoke:node-dist && npm run smoke:packed-consumer && npm run example:browser:build && npm run smoke:browser-csv && npm run smoke:browser-csv-worker && npm run smoke:browser-writable-stream && npm run smoke:browser-worker"
+  },
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "dependencies": {
+    "p-limit": "^7.3.0",
+    "web-streams-polyfill": "^4.2.0",
+    "zod": "^4.1.0"
+  },
+  "optionalDependencies": {
+    "csv-parse": "^6.2.1",
+    "papaparse": "^5.5.3",
+    "streamx": "^2.25.0"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.31.0",
+    "@napi-rs/cli": "^3.6.2",
+    "@playwright/test": "^1.60.0",
+    "@types/node": "^24.0.0",
+    "fast-check": "^4.7.0",
+    "prettier": "^3.8.3",
+    "tinybench": "^3.0.0",
+    "typescript": "^5.9.0",
+    "vitest": "^4.0.0"
+  }
+}

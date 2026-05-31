@@ -1,0 +1,17 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/core" },
+    { "path": "./packages/codec-jsonl" },
+    { "path": "./packages/source-memory" },
+    { "path": "./packages/sink-memory" },
+    { "path": "./packages/node" },
+    { "path": "./packages/browser" },
+    { "path": "./packages/source-file" },
+    { "path": "./packages/sink-file" },
+    { "path": "./packages/codec-csv" },
+    { "path": "./packages/plugin-testing" },
+    { "path": "./packages/transform-fields" },
+    { "path": "./packages/validation-zod" }
+  ]
+}

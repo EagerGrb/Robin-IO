@@ -1,0 +1,15 @@
+{
+  "name": "@robbin-io/example-node-csv-to-jsonl",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node --experimental-strip-types src/index.ts ./input.csv ./output.jsonl"
+  },
+  "dependencies": {
+    "@robbin-io/codec-csv": "0.1.0",
+    "@robbin-io/codec-jsonl": "0.1.0",
+    "@robbin-io/core": "0.1.0",
+    "@robbin-io/node": "0.1.0"
+  }
+}

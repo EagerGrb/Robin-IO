@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CSV Preview</title>
+    <style>
+      :root {
+        color: #1f2937;
+        background: #f7f8fb;
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+      }
+
+      main {
+        display: grid;
+        grid-template-rows: auto auto 1fr;
+        min-height: 100vh;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 20px;
+        border-bottom: 1px solid #d7dce5;
+        background: #ffffff;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 650;
+      }
+
+      input[type="file"] {
+        max-width: 280px;
+      }
+
+      .summary {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(120px, 1fr));
+        gap: 1px;
+        border-bottom: 1px solid #d7dce5;
+        background: #d7dce5;
+      }
+
+      .metric {
+        min-width: 0;
+        padding: 12px 16px;
+        background: #ffffff;
+      }
+
+      .metric span {
+        display: block;
+        color: #687386;
+        font-size: 12px;
+      }
+
+      .metric strong {
+        display: block;
+        margin-top: 4px;
+        font-size: 18px;
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 320px;
+        min-height: 0;
+      }
+
+      .table-wrap {
+        overflow: auto;
+        padding: 16px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #ffffff;
+        border: 1px solid #d7dce5;
+      }
+
+      th,
+      td {
+        max-width: 260px;
+        padding: 8px 10px;
+        border-bottom: 1px solid #e7eaf0;
+        text-align: left;
+        vertical-align: top;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      th {
+        position: sticky;
+        top: 0;
+        background: #eef2f7;
+        font-size: 12px;
+        font-weight: 650;
+      }
+
+      aside {
+        min-width: 0;
+        padding: 16px;
+        border-left: 1px solid #d7dce5;
+        background: #ffffff;
+      }
+
+      pre {
+        min-height: 160px;
+        margin: 0;
+        padding: 12px;
+        overflow: auto;
+        border: 1px solid #d7dce5;
+        background: #f7f8fb;
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      @media (max-width: 760px) {
+        header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .summary,
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+
+        aside {
+          border-left: 0;
+          border-top: 1px solid #d7dce5;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>CSV Preview</h1>
+        <input id="file" type="file" accept=".csv,text/csv" />
+      </header>
+      <section class="summary" aria-live="polite">
+        <div class="metric"><span>Status</span><strong id="state">Idle</strong></div>
+        <div class="metric"><span>Read</span><strong id="records-read">0</strong></div>
+        <div class="metric"><span>Rows</span><strong id="rows">0</strong></div>
+        <div class="metric"><span>Batches</span><strong id="batches">0</strong></div>
+        <div class="metric"><span>Errors</span><strong id="errors">0</strong></div>
+      </section>
+      <section class="workspace">
+        <div class="table-wrap">
+          <table id="preview"></table>
+        </div>
+        <aside>
+          <pre id="status">{}</pre>
+        </aside>
+      </section>
+    </main>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>
